@@ -2,23 +2,20 @@
   "submodule": "encore-ui/src",
   "modules": {
     "components": [
-      "layout",
-      "rxApp",
-      "rxCollapse",
-      "rxForm",
-      "rxPaginate",
-      "rxPopover",
-      "rxRadio",
-      "rxSortableColumn",
-      "rxStatusColumn"
+      "rxApp"
     ],
     "elements": [
       "ActionMenu",
       "Buttons",
+      "Collapse",
       "Forms",
       "Metadata",
       "Tags",
-      "Tooltips"
+      "Tooltips",
+      "rxPopover",
+      "rxRadio",
+      "rxSortableColumn",
+      "rxStatusColumn"
     ],
     "utilities": [
       "Page",
@@ -30,6 +27,7 @@
       "rxLocalStorage",
       "rxNestedElement",
       "rxNotify",
+      "rxPaginate",
       "rxPaginateUtils",
       "rxPromiseNotifications",
       "rxSortEmptyTop",
