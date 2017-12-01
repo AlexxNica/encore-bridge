@@ -1,4 +1,4 @@
-angular.module('encore.bridge', ['encore.ui.layout','encore.ui.rxApp','encore.ui.rxCollapse','encore.ui.rxForm','encore.ui.rxPaginate','encore.ui.rxPopover','encore.ui.rxRadio','encore.ui.rxSortableColumn','encore.ui.rxStatusColumn','encore.ui.utilities','encore.ui.elements']);
+angular.module('encore.bridge', ['encore.ui.rxApp','encore.ui.utilities','encore.ui.elements']);
 
 angular.module('encore.ui.utilities', []);
 
@@ -600,6 +600,84 @@ angular.module('encore.ui.utilities')
 
     return rxPaginateUtils;
 });
+
+(function () {
+    rxPaginateFilter.$inject = ["rxPageTracker", "rxPaginateUtils"];
+    angular
+        .module('encore.ui.utilities')
+        .filter('rxPaginate', rxPaginateFilter);
+
+    /**
+     * @ngdoc filter
+     * @name utilities.filter:rxPaginate
+     * @description
+     * This is the pagination filter that is used to calculate the division in the
+     * items list for the paging.
+     *
+     * @param {Object} items The list of items that are to be sliced into pages
+     * @param {Object} pager The instance of the rxPageTracker service. If not
+     * specified, a new one will be created.
+     *
+     * @returns {Object} The list of items for the current page in the rxPageTracker object
+     */
+    function rxPaginateFilter (rxPageTracker, rxPaginateUtils) {
+        return function (items, pager) {
+            if (!pager) {
+                pager = rxPageTracker.createInstance();
+            }
+            if (pager.showAll) {
+                pager.total = items.length;
+                return items;
+            }
+            if (items) {
+
+                pager.total = items.length;
+                // We were previously on the last page, but enough items were deleted
+                // to reduce the total number of pages. We should now jump to whatever the
+                // new last page is
+                // When loading items over the network, our first few times through here
+                // will have totalPages===0. We do the _.max to ensure that
+                // we never set pageNumber to -1
+                if (pager.pageNumber + 1 > pager.totalPages) {
+                    if (!pager.isLastPage()) {
+                        pager.goToLastPage();
+                    }
+                }
+                var firstLast = rxPaginateUtils.firstAndLast(pager.currentPage(), pager.itemsPerPage, items.length);
+                return items.slice(firstLast.first, firstLast.last);
+            }
+        };
+    }//rxPaginateFilter
+})();
+
+angular.module('encore.ui.utilities')
+/**
+ * @ngdoc filter
+ * @name utilities.filter:PaginatedItemsSummary
+ * @requires $interpolate
+ * @description
+ * Given an active pager (i.e. the result of rxPageTracker.createInstance()),
+ * return a string like "26-50 of 500", when on the second page of a list of
+ * 500 items, where we are displaying 25 items per page
+ *
+ * @param {Object} pager The instance of the rxPageTracker service.
+ *
+ * @returns {String} The list of page numbers that will be displayed.
+ */
+.filter('PaginatedItemsSummary', ["rxPaginateUtils", "$interpolate", function (rxPaginateUtils, $interpolate) {
+    return function (pager) {
+        var template = '{{first}}-{{last}} of {{total}}';
+        if (pager.showAll || pager.itemsPerPage > pager.total) {
+            template = '{{total}}';
+        }
+        var firstAndLast = rxPaginateUtils.firstAndLast(pager.currentPage(), pager.itemsPerPage, pager.total);
+        return $interpolate(template)({
+            first: firstAndLast.first + 1,
+            last: firstAndLast.last,
+            total: pager.total
+        });
+    };
+}]);
 
 angular.module('encore.ui.utilities')
 /**
@@ -1410,6 +1488,16 @@ angular.module('encore.ui.elements', [
 ])
 .run(["$compile", "$templateCache", function ($compile, $templateCache) {
     $compile($templateCache.get('templates/rxModalFooters.html'));
+}]);
+
+angular.module('encore.ui.rxPopover', ['encore.ui.elements'])
+
+angular.module('encore.ui.rxPopover')
+.directive('rxPopover', ["rxActionMenuDirective", function (rxActionMenuDirective) {
+  var ddo = _.cloneDeep(rxActionMenuDirective[0]);
+  return _.assign(ddo, {
+    templateUrl: 'templates/rxPopover.html'
+  });
 }]);
 
 angular.module('encore.ui.elements')
@@ -3670,6 +3758,58 @@ angular.module('encore.ui.elements')
 angular.module('encore.ui.elements')
 /**
  * @ngdoc directive
+ * @name elements.directive:rxCollapse
+ * @restrict E
+ * @scope
+ * @description
+ * `rxCollapse` directive hides and shows an element with a transition.  It can be configured to show as either expanded
+ * or collapsed on page load.  A double chevron(**>>**) is used to toggle between show and hide contents, while keeping
+ * the header and border visible.
+ *
+ * ## Hide/Show Content
+ *
+ * * This pattern was developed for areas displaying metadata that may be short on screen real estate, as a way to hide
+ *  data on load that is not as important to the user in the context where they are presented.  `rxCollapse` toggles
+ *  between the *optional* `title` parameter with "*See More*" or "*See Less*".
+ * * This pattern is not very responsive-friendly, since as browser width decreases, columns will wrap. As columns wrap,
+ *  the "*See More*" `rxCollapse` elements get lost in the new context, which is bad for user experience.
+ * * To avoid the problem described above, "*See More*" `rxCollapse` elements should only be used at the end of the
+ * final column present on the page, so that when the columns wrap via flexbox, "*See More*" is always last and doesn't
+ * get lost in between metadata key/value pairs.
+ *
+ *
+ * @param {String=} [title="See More/See Less"]
+ * The title to display next to the toggle button. Default is "See More/See Less" toggle.
+ * @param {Boolean=} [expanded='true']
+ * Initially expanded or collapsed. Default is expanded.
+ *
+ * @example
+ * <pre>
+ * <rx-collapse title="Filter results" expanded="true">Text Here</rx-collapse>
+ * <rx-collapse expanded="true">Text Here</rx-collapse>
+ * </pre>
+ */
+.directive('rxCollapse', function () {
+    return {
+        restrict: 'E',
+        templateUrl: 'templates/rxCollapse.html',
+        transclude: true,
+        scope: {
+            title: '@'
+        },
+        link: function (scope, element, attrs) {
+            scope.isExpanded = (attrs.expanded === 'false') ? false : true;
+
+            scope.toggleExpanded = function () {
+                scope.isExpanded = !scope.isExpanded;
+            };
+        }
+    };
+});
+
+angular.module('encore.ui.elements')
+/**
+ * @ngdoc directive
  * @name elements.directive:rxButton
  * @restrict E
  * @scope
@@ -3795,28 +3935,19 @@ angular.module('encore.ui.elements')
 .config(["$provide", function ($provide) {
   $provide.decorator('rxActionMenuDirective', ["$delegate", function ($delegate) {
     // https://github.com/angular/angular.js/issues/10149
-    _.each(['type', 'text'], function (key) {
-      $delegate[0].$$isolateBindings[key] = {
-        attrName: key,
-        mode: '@',
-        optional: true
-      };
-    });
+    // TODO: figure out why isolateBindings are undefined and remove setTimeout
+    setTimeout(function () {
+      _.each(['type', 'text'], function (key) {
+        $delegate[0].$$isolateBindings[key] = {
+          attrName: key,
+          mode: '@',
+          optional: true
+        };
+      });
+    }, 2000);
     return $delegate;
   }]);
 }]);
-
-angular.module('encore.ui.rxPopover', ['encore.ui.elements'])
-
-angular.module('encore.ui.rxPopover')
-.directive('rxPopover', ["rxActionMenuDirective", function (rxActionMenuDirective) {
-  var ddo = _.cloneDeep(rxActionMenuDirective[0]);
-  return _.assign(ddo, {
-    templateUrl: 'templates/rxPopover.html'
-  });
-}]);
-
-angular.module('encore.ui.rxForm', ['encore.ui.utilities']);
 
 angular.module('encore.ui.rxApp', ['ngRoute']);
 
@@ -5118,21 +5249,6 @@ angular.module('encore.bridge').run(['$templateCache', function($templateCache) 
 }]);
 
 angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
-  $templateCache.put('templates/rxCollapse.html',
-    '<div class="collapse-container" ng-class="{\'hide-border\': !title}"><div ng-if="title" class="collapse-title-wrap"><div class="rx-collapse-title">{{title}}</div><i class="fa {{isExpanded ? \'fa-chevron-up\' : \'fa-chevron-down\'}}" ng-click="toggleExpanded()"></i></div><div ng-show="isExpanded" ng-class="{\'collapse-body\':title}" ng-transclude></div><div ng-if="!title" ng-class="{ expanded: isExpanded }" class="collapse-title-wrap collapse-title-wrap-default" ng-click="toggleExpanded()"><span ng-if="!isExpanded" class="sml-title"><span class="toggle-title">See More</span> <i class="fa fa-angle-double-down"></i> </span><span ng-if="isExpanded" class="sml-title"><span class="toggle-title">See Less</span> <i class="fa fa-angle-double-up"></i></span></div></div>');
-}]);
-
-angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
-  $templateCache.put('templates/rxPopover.html',
-    '<div><button ng-if="!text" class="rs-cog" ng-click="toggle()"></button><div class="rs-popover" ng-if="displayed"><div class="rs-popover-arrow rs-popover-arrow-top-left"></div><div class="rs-popover-content" ng-transclude></div></div></div>');
-}]);
-
-angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
-  $templateCache.put('templates/rxStatusColumn.html',
-    '<span></span>');
-}]);
-
-angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/rxActionMenu.html',
     '<div class="action-menu-container"><a ng-if="text" class="rx-action-menu-toggle" ng-click="toggle()">{{text}} <i class="fa fa-chevron-down"></i> </a><i ng-if="!text" class="fa fa-cog fa-lg" ng-click="toggle()"></i><div class="action-list" ng-show="displayed" ng-click="modalToggle()" ng-transclude></div></div>');
 }]);
@@ -5140,6 +5256,11 @@ angular.module('encore.bridge').run(['$templateCache', function($templateCache) 
 angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/rxButton.html',
     '<button type="submit" class="button rx-button {{classes}}" ng-disabled="toggle || isDisabled">{{ toggle ? toggleMsg : defaultMsg }}<div class="spinner" ng-show="toggle"><i class="pos1"></i> <i class="pos2"></i> <i class="pos3"></i></div></button>');
+}]);
+
+angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
+  $templateCache.put('templates/rxCollapse.html',
+    '<div class="collapse-container" ng-class="{\'hide-border\': !title}"><div ng-if="title" class="collapse-title-wrap"><div class="rx-collapse-title">{{title}}</div><i class="fa {{isExpanded ? \'fa-chevron-up\' : \'fa-chevron-down\'}}" ng-click="toggleExpanded()"></i></div><div ng-show="isExpanded" ng-class="{\'collapse-body\':title}" ng-transclude></div><div ng-if="!title" ng-class="{ expanded: isExpanded }" class="collapse-title-wrap collapse-title-wrap-default" ng-click="toggleExpanded()"><span ng-if="!isExpanded" class="sml-title"><span class="toggle-title">See More</span> <i class="fa fa-angle-double-down"></i> </span><span ng-if="isExpanded" class="sml-title"><span class="toggle-title">See Less</span> <i class="fa fa-angle-double-up"></i></span></div></div>');
 }]);
 
 angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
@@ -5210,4 +5331,9 @@ angular.module('encore.bridge').run(['$templateCache', function($templateCache) 
 angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/rxTooltip-template-popup.html',
     '<div class="rxTooltip__arrow"></div><div class="rxTooltip__inner" rx-tooltip-template-transclude="contentExp()" rx-tooltip-template-transclude-scope="originScope()"></div>');
+}]);
+
+angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
+  $templateCache.put('templates/rxPopover.html',
+    '<div><button ng-if="!text" class="rs-cog" ng-click="toggle()"></button><div class="rs-popover" ng-if="displayed"><div class="rs-popover-arrow rs-popover-arrow-top-left"></div><div class="rs-popover-content" ng-transclude></div></div></div>');
 }]);
