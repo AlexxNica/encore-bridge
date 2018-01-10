@@ -5,7 +5,7 @@
       "rxApp"
     ],
     "elements": [
-      "ActionMenu",
+      "rxActionMenu",
       "Buttons",
       "Collapse",
       "Forms",
