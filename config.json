@@ -37,7 +37,7 @@
       "rxStatusMappings",
       "rxTimePickerUtil",
       "Session",
-      "TokenInterceptor",
+      "rxTokenInterceptor",
       "rxUnauthorizedInterceptor",
       "UtcOffsets"
     ]
