@@ -19,15 +19,14 @@
       "rxStatusColumn"
     ],
     "utilities": [
-      "Page",
-      "PageTracking",
-      "Paginate",
       "PaginatedItemsSummary",
       "rxAge",
       "rxDOMHelper",
       "rxLocalStorage",
       "rxNestedElement",
       "rxNotify",
+      "rxPager",
+      "rxPageTracker",
       "rxPaginate",
       "rxPaginateUtils",
       "rxPromiseNotifications",
