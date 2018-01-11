@@ -69,7 +69,7 @@ gulp.task('build:styles', function () {
   .pipe(insert.prepend([
     '@import (reference) "encore-ui/src/styles/vars.less";',
     '@import (reference) "encore-ui/src/styles/mixins.less";',
-    '@import "encore-ui/src/components/rxApp/common.less";',
+    '@import "encore-ui/src/base.less";',
     '@import (reference) "vars.less";',
     // TODO: remove flexbox layout (fix rxForm)
     //'@import "encore-ui/src/components/layout/layout.less";'
