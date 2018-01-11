@@ -4,6 +4,60 @@ angular.module('encore.ui.utilities', []);
 
 angular.module('encore.ui.utilities')
 /**
+ * @ngdoc parameters
+ * @name utilities.constant:rxUtcOffsets
+ *
+ * @description
+ * List of known UTC Offset Values
+ * See https://en.wikipedia.org/wiki/List_of_UTC_time_offsets
+ *
+ * Utility service used by {@link elements.directive:rxTimePicker rxTimePicker}.
+ */
+.constant('rxUtcOffsets', [
+    '-12:00',
+    '-11:00',
+    '-10:00',
+    '-09:30',
+    '-09:00',
+    '-08:00',
+    '-07:00',
+    '-06:00',
+    '-05:00',
+    '-04:30',
+    '-04:00',
+    '-03:30',
+    '-03:00',
+    '-02:00',
+    '-01:00',
+    '+00:00',
+    '+01:00',
+    '+02:00',
+    '+03:00',
+    '+03:30',
+    '+04:00',
+    '+04:30',
+    '+05:00',
+    '+05:30',
+    '+05:45',
+    '+06:00',
+    '+06:30',
+    '+07:00',
+    '+08:00',
+    '+08:30',
+    '+08:45',
+    '+09:00',
+    '+09:30',
+    '+10:00',
+    '+10:30',
+    '+11:00',
+    '+12:00',
+    '+12:45',
+    '+13:00',
+    '+14:00',
+]);
+
+angular.module('encore.ui.utilities')
+/**
  * @ngdoc service
  * @name utilities.service:rxUnauthorizedInterceptor
  * @description
@@ -609,41 +663,6 @@ angular.module('encore.ui.utilities')
     'ERROR': 'fa-ban',
     'WARNING': 'fa-exclamation-triangle',
     'INFO': 'fa-info-circle',
-});
-
-angular.module('encore.ui.utilities')
-/**
- * @ngdoc service
- * @name utilities.service:rxSortUtil
- * @description
- * Service which provided utility methods for sorting collections.
- *
- * @example
- * <pre>
- * rxSortUtil.getDefault() // returns a sort object with name as the default.
- * rxSortUtil.sortCol($scope, 'name') // sorts the collection based on the predicate
- * </pre>
- */
-.factory('rxSortUtil', function () {
-    var util = {};
-
-    util.getDefault = function (property, reversed) {
-        return { predicate: property, reverse: reversed };
-    };
-
-    util.sortCol = function ($scope, predicate) {
-        var reverse = ($scope.sort.predicate === predicate) ? !$scope.sort.reverse : false;
-        $scope.sort = { reverse: reverse, predicate: predicate };
-
-        // This execution should be moved outside of the scope for rxSortUtil
-        // already rxSortUtil.sortCol has to be wrapped, and can be implemented there
-        // rather than have rxSortUtil.sortCol check/expect for a pager to be present.
-        if ($scope.pager) {
-            $scope.pager.pageNumber = 0;
-        }
-    };
-
-    return util;
 });
 
 angular.module('encore.ui.utilities')

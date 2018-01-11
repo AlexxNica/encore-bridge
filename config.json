@@ -5,7 +5,7 @@
       "rxApp"
     ],
     "elements": [
-      "rxActionMenu",
+      "ActionMenu",
       "Buttons",
       "Collapse",
       "Forms",
@@ -32,14 +32,13 @@
       "rxPromiseNotifications",
       "rxSortEmptyTop",
       "rxSortUtil",
-      "rxSortUtil",
       "rxStatusColumnIcons",
       "rxStatusMappings",
       "rxTimePickerUtil",
       "rxSession",
       "rxTokenInterceptor",
       "rxUnauthorizedInterceptor",
-      "UtcOffsets"
+      "rxUtcOffsets"
     ]
   }
 }
