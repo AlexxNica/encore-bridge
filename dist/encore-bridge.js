@@ -2133,12 +2133,55 @@ angular.module('encore.ui.elements', [
 angular.module('encore.ui.rxPopover', ['encore.ui.elements'])
 
 angular.module('encore.ui.rxPopover')
-.directive('rxPopover', ["rxActionMenuDirective", function (rxActionMenuDirective) {
-  var ddo = _.cloneDeep(rxActionMenuDirective[0]);
-  return _.assign(ddo, {
-    templateUrl: 'templates/rxPopover.html'
-  });
-}]);
+.directive('rxPopover', function () {
+    return {
+        restrict: 'EA',
+        controller: ["$scope", function ($scope) {
+            var displayed = false;
+
+            this.onChange = _.noop;
+
+            this.close = function () {
+                displayed = false;
+                this.onChange(displayed);
+            };
+
+            this.toggle = function () {
+                displayed = !displayed;
+                this.onChange(displayed);
+            };
+        }],
+        link: function (scope, element, attrs) {
+            attrs.$addClass('action-menu-container');
+        }
+    };
+})
+.directive('rxPopoverTrigger', function () {
+    return {
+        require: '^^rxPopover',
+        restrict: 'A',
+        link: function (scope, element, attrs, rxPopover) {
+            element.on('click', function () {
+                scope.$apply(function () {
+                    rxPopover.toggle();
+                });
+            });
+        }
+    };
+})
+.directive('rxPopoverContent', function () {
+    return {
+        require: '^^rxPopover',
+        restrict: 'E',
+        template: '<div class="action-list" ng-if="displayed" ng-transclude></div>',
+        transclude: true,
+        link: function (scope, element, attrs, rxPopover) {
+            rxPopover.onChange = function (displayed) {
+                scope.displayed = displayed;
+            };
+        }
+    };
+});
 
 angular.module('encore.ui.elements')
 /**
@@ -5971,9 +6014,4 @@ angular.module('encore.bridge').run(['$templateCache', function($templateCache) 
 angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/rxTooltip-template-popup.html',
     '<div class="rxTooltip__arrow"></div><div class="rxTooltip__inner" rx-tooltip-template-transclude="contentExp()" rx-tooltip-template-transclude-scope="originScope()"></div>');
-}]);
-
-angular.module('encore.bridge').run(['$templateCache', function($templateCache) {
-  $templateCache.put('templates/rxPopover.html',
-    '<div><button ng-if="!text" class="rs-cog" ng-click="toggle()"></button><div class="rs-popover" ng-if="displayed"><div class="rs-popover-arrow rs-popover-arrow-top-left"></div><div class="rs-popover-content" ng-transclude></div></div></div>');
 }]);

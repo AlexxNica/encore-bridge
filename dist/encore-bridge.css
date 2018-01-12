@@ -1840,56 +1840,6 @@ rx-collapse .rx-collapse-title {
   display: inline-block;
   padding-right: 5px;
 }
-/*
- * rxCollapse
- */
-rx-collapse {
-  display: block;
-}
-rx-collapse .collapse-container {
-  border: 2px solid var(--rx-gray-500);
-}
-rx-collapse .collapse-container .double-chevron-cell {
-  display: inline-block;
-  box-sizing: border-box;
-  width: 30px;
-  padding: 0 10px;
-  background-color: var(--rx-gray-500);
-  vertical-align: middle;
-  cursor: pointer;
-}
-rx-collapse .collapse-container .double-chevron-cell .double-chevron:after {
-  display: inline-block;
-  color: var(--rx-white);
-  font-size: 28px;
-  content: "\00bb";
-  -webkit-transform: rotate(90deg) scaleX(1);
-  transform: rotate(90deg) scaleX(1);
-  transition: all 0.2s;
-}
-rx-collapse .collapse-container .double-chevron-cell.expanded .double-chevron:after {
-  content: "\00bb";
-  -webkit-transform: rotate(90deg) scaleX(-1);
-  transform: rotate(90deg) scaleX(-1);
-  transition: all 0.2s;
-}
-rx-collapse .collapse-container .rx-collapse-title {
-  display: inline-block;
-  margin: 0 10px;
-  vertical-align: middle;
-}
-rx-collapse .collapse-container .collapse-body {
-  margin: 0;
-  padding: 10px;
-}
-rx-collapse .sml-title {
-  cursor: pointer;
-  color: var(--rx-gray-700);
-  font-size: 10pt;
-}
-rx-collapse .hide-border {
-  border: 0;
-}
 .FlexboxGrid-demo .rx-example .flex-row,
 .FlexboxGrid-demo .rx-example .grid-row {
   border-top: 1px dashed var(--rx-blue-700);
@@ -9792,6 +9742,50 @@ rx-tooltip-content .tooltip.bottom .tooltip-inner {
 .rxTooltip.left .rxTooltip__arrow:before {
   left: -10px;
   border-left-color: #757575;
+}
+rx-popover,
+[rx-popover] {
+  display: inline-block;
+}
+rx-popover .action-list,
+[rx-popover] .action-list {
+  top: 2em;
+  left: -1em;
+  min-width: 300px;
+  padding: 1.25em;
+}
+rx-popover .action-list:before,
+[rx-popover] .action-list:before {
+  content: "\f0d8";
+  text-shadow: rgba(0, 0, 0, 0.35) 0px -1px 1px;
+  font-family: FontAwesome;
+  text-decoration: inherit;
+  color: #ffffff;
+  font-size: 24px;
+  display: block;
+  left: 1em;
+  position: absolute;
+  top: -15px;
+  width: 0;
+  z-index: 1;
+}
+rx-popover.left .action-list,
+[rx-popover].left .action-list {
+  left: auto;
+  right: -1em;
+}
+rx-popover.left .action-list:before,
+[rx-popover].left .action-list:before {
+  left: auto;
+  right: 1.5em;
+}
+rx-popover .action-buttons,
+[rx-popover] .action-buttons {
+  text-align: right;
+}
+rx-popover .action-buttons .button,
+[rx-popover] .action-buttons .button {
+  margin-bottom: 0;
 }
 .rxStatusMappings-demo .demo-status-column-table {
   max-width: 500px;
