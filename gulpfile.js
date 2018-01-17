@@ -74,7 +74,7 @@ gulp.task('build:styles', function () {
     // TODO: remove flexbox layout (fix rxForm)
     '@import "encore-ui/src/elements/FlexboxGrid/styles/layout.less";'
   ].join('\n')))
-  .pipe(less({ paths: ['./', './src', './src/styles', './encore-ui/src/styles', './node_modules/normalize.css'] }))
+  .pipe(less({ paths: ['./', './src/styles', './encore-ui/src/styles', './node_modules/normalize.css'] }))
   .pipe(gulp.dest('./demo/'));
 });
 
